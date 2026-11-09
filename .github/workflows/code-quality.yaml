@@ -12,33 +12,20 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  python:
-    name: Python
+  checks:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Set up uv
-        uses: astral-sh/setup-uv@v5
+      - uses: astral-sh/setup-uv@v5
         with:
           enable-cache: true
-
-      - name: Lint
-        run: uvx ruff check --output-format=github src
-
-      - name: Check formatting
-        run: uvx ruff format --check src
-
-  cpp:
-    name: C++
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
 
       - name: Install clang-format
         run: sudo apt-get update && sudo apt-get install --yes clang-format
 
-      - name: Check formatting
-        run: find src -type f \( -name '*.cc' -o -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \) -print0 | xargs --null clang-format --dry-run --Werror
+      - name: Check formatting and lint
+        run: |
+          uvx ruff check --output-format=github src
+          uvx ruff format --check src
+          find src -type f \( -name '*.cc' -o -name '*.cpp' -o -name '*.h' -o -name '*.hpp' \) -print0 | xargs --null clang-format --dry-run --Werror

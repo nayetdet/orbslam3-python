@@ -18,13 +18,70 @@ find_package(Eigen3 3.1 REQUIRED)
 find_package(Pangolin REQUIRED)
 find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(OpenSSL REQUIRED)
-find_package(MPI REQUIRED COMPONENTS C)
+
+if(MSVC)
+  set(_windows_compat "${ORB_SLAM3_SOURCE_DIR}/include/WindowsCompat.h")
+  file(WRITE "${_windows_compat}" [=[
+#pragma once
+#ifndef NOMINMAX
+#define NOMINMAX
+#endif
+#include <windows.h>
+inline int usleep(unsigned int microseconds) { Sleep((microseconds + 999) / 1000); return 0; }
+]=])
+
+  set(_windows_unistd_compat [=[
+#ifdef _WIN32
+#include "WindowsCompat.h"
+#else
+#include <unistd.h>
+#endif
+]=])
+
+  foreach(_header Config.h Settings.h System.h)
+    set(_header_path "${ORB_SLAM3_SOURCE_DIR}/include/${_header}")
+    file(READ "${_header_path}" _header_contents)
+    string(REPLACE "#include <unistd.h>" "${_windows_unistd_compat}"
+      _header_contents "${_header_contents}")
+    file(WRITE "${_header_path}" "${_header_contents}")
+  endforeach()
+
+  set(_g2o_cmake "${ORB_SLAM3_SOURCE_DIR}/Thirdparty/g2o/CMakeLists.txt")
+  file(READ "${_g2o_cmake}" _g2o_contents)
+  string(REPLACE " -O3 -march=native" ""
+    _g2o_contents "${_g2o_contents}")
+  string(REPLACE " -Wall -W" " /W3"
+    _g2o_contents "${_g2o_contents}")
+  file(WRITE "${_g2o_cmake}" "${_g2o_contents}")
+
+  set(_dbow2_cmake "${ORB_SLAM3_SOURCE_DIR}/Thirdparty/DBoW2/CMakeLists.txt")
+  file(READ "${_dbow2_cmake}" _dbow2_contents)
+  string(REPLACE "-Wall  -O3 -march=native" "/W3 /O2"
+    _dbow2_contents "${_dbow2_contents}")
+  file(WRITE "${_dbow2_cmake}" "${_dbow2_contents}")
+endif()
 
 add_subdirectory("${ORB_SLAM3_SOURCE_DIR}/Thirdparty/g2o" "${CMAKE_BINARY_DIR}/thirdparty/g2o")
 add_subdirectory("${ORB_SLAM3_SOURCE_DIR}/Thirdparty/DBoW2" "${CMAKE_BINARY_DIR}/thirdparty/DBoW2")
 
-target_compile_options(DBoW2 PRIVATE -march=x86-64 -mtune=generic)
-target_compile_options(g2o PRIVATE -march=x86-64 -mtune=generic)
+if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
+  if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(aarch64|arm64|ARM64)$")
+    if(APPLE)
+      set(ORB_SLAM3_CPU_BASELINE -mcpu=apple-m1)
+    else()
+      set(ORB_SLAM3_CPU_BASELINE -march=armv8-a -mtune=generic)
+    endif()
+  else()
+    set(ORB_SLAM3_CPU_BASELINE -march=x86-64 -mtune=generic)
+  endif()
+
+  target_compile_options(DBoW2 PRIVATE ${ORB_SLAM3_CPU_BASELINE})
+  target_compile_options(g2o PRIVATE ${ORB_SLAM3_CPU_BASELINE})
+endif()
+
+if(MSVC)
+  target_compile_definitions(g2o PRIVATE _WINDOWS)
+endif()
 
 set(ORB_SLAM3_SOURCES
   src/System.cc src/Tracking.cc src/LocalMapping.cc src/LoopClosing.cc
@@ -39,6 +96,9 @@ set(ORB_SLAM3_SOURCES
 list(TRANSFORM ORB_SLAM3_SOURCES PREPEND "${ORB_SLAM3_SOURCE_DIR}/")
 
 add_library(ORB_SLAM3 STATIC ${ORB_SLAM3_SOURCES})
+if(MSVC)
+  target_compile_options(ORB_SLAM3 PRIVATE "/FI${ORB_SLAM3_SOURCE_DIR}/include/WindowsCompat.h")
+endif()
 target_include_directories(ORB_SLAM3 PUBLIC
   "${ORB_SLAM3_SOURCE_DIR}"
   "${ORB_SLAM3_SOURCE_DIR}/include"

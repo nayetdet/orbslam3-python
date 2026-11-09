@@ -1,6 +1,6 @@
 [project]
 name = "orbslam3"
-version = "0.1.4"
+version = "0.1.5"
 description = "Python bindings for ORB-SLAM3 with dense reconstruction support"
 readme = "README.md"
 requires-python = ">=3.9"
@@ -15,7 +15,7 @@ dev = ["ruff>=0.8"]
 
 [tool.scikit-build]
 build-dir = "build/{wheel_tag}"
-cmake.version = ">=3.25"
+cmake.version = ">=3.25,<4"
 wheel.install-dir = "orbslam3/python_wrapper"
 wheel.packages = ["src/orbslam3"]
 
