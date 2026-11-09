@@ -89,9 +89,13 @@ jobs:
       - name: Install Windows dependencies
         if: matrix.platform.os == 'windows'
         shell: pwsh
-        env:
-          VCPKG_BINARY_SOURCES: "clear;x-gha,readwrite"
         run: vcpkg install boost-serialization eigen3 glew opencv4 pangolin openssl --triplet x64-windows
+
+      - name: Configure MSVC build environment
+        if: matrix.platform.os == 'windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
 
       - name: Build Linux wheel
         if: matrix.platform.os == 'linux'
@@ -150,7 +154,7 @@ jobs:
 
       - uses: actions/upload-artifact@v4
         with:
-          name: wheels-${{ matrix.platform.target }}-${{ matrix.python-version }}
+          name: wheels-${{ matrix.platform.os }}-${{ matrix.platform.target }}-${{ matrix.python-version }}
           path: wheelhouse/*.whl
           if-no-files-found: error
 

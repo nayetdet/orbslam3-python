@@ -13,7 +13,7 @@ endif()
 
 set(ORB_SLAM3_SOURCE_DIR "${orbslam3_source_SOURCE_DIR}")
 
-find_package(OpenCV 4.4 REQUIRED)
+find_package(OpenCV REQUIRED)
 find_package(Eigen3 3.1 REQUIRED)
 find_package(Pangolin REQUIRED)
 find_package(Boost REQUIRED COMPONENTS serialization)
