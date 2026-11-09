@@ -57,6 +57,7 @@ pkgs.mkShell {
     mesa
     ninja
     octomap
+    openmpi
     openssl
     opencv4
     pangolin

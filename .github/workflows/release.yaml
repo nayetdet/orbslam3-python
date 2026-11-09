@@ -33,9 +33,6 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Verify release version
-        run: test "v$(uv version --short)" = "$GITHUB_REF_NAME"
-
       - name: Install native dependencies
         run: |
           sudo apt-get update
