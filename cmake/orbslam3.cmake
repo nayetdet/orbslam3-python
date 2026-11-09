@@ -13,6 +13,12 @@ endif()
 
 set(ORB_SLAM3_SOURCE_DIR "${orbslam3_source_SOURCE_DIR}")
 
+set(_g2o_cmake "${ORB_SLAM3_SOURCE_DIR}/Thirdparty/g2o/CMakeLists.txt")
+file(READ "${_g2o_cmake}" _g2o_contents)
+string(REPLACE "FIND_PACKAGE(Eigen3 3.1.0 REQUIRED)" "FIND_PACKAGE(Eigen3 REQUIRED)"
+  _g2o_contents "${_g2o_contents}")
+file(WRITE "${_g2o_cmake}" "${_g2o_contents}")
+
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Pangolin REQUIRED)
