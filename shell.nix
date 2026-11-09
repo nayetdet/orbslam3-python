@@ -63,6 +63,7 @@ pkgs.mkShell {
     pcl
     pkg-config
     ruff
+    uv
     (python3.withPackages (ps: with ps; [
       numpy
       pip

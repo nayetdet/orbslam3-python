@@ -2,15 +2,16 @@
 name = "orbslam3"
 version = "0.1.0"
 description = "Python bindings for ORB-SLAM3 with dense reconstruction support"
-requires-python = ">=3.9"
 readme = "README.md"
-dependencies = [
-    "numpy>=1.22",
-]
+requires-python = ">=3.9"
+dependencies = ["numpy>=1.22"]
 
 [build-system]
 requires = ["scikit-build-core>=0.10", "pybind11>=2.11"]
 build-backend = "scikit_build_core.build"
+
+[dependency-groups]
+dev = ["ruff>=0.8"]
 
 [tool.scikit-build]
 build-dir = "build/{wheel_tag}"

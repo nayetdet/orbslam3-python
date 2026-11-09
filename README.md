@@ -7,7 +7,7 @@ Python bindings for the [`nayetdet/ORB_SLAM3`](https://github.com/nayetdet/ORB_S
 Install the package after setting up the native ORB-SLAM3 dependencies:
 
 ```bash
-python -m pip install .
+make install
 ```
 
 PCL and OctoMap enable the fork's dense reconstruction support.
