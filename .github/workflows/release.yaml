@@ -1,0 +1,113 @@
+name: Release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    name: CPython ${{ matrix.python-version }}
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13", "3.14"]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+
+      - name: Verify release version
+        run: test "v$(uv version --short)" = "$GITHUB_REF_NAME"
+
+      - name: Install native dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes \
+            libboost-serialization-dev \
+            libeigen3-dev \
+            libepoxy-dev \
+            libgl1-mesa-dev \
+            libglew-dev \
+            libglu1-mesa-dev \
+            liboctomap-dev \
+            libopencv-dev \
+            libpcl-dev \
+            libssl-dev \
+            patchelf \
+            libx11-dev \
+            libxcursor-dev \
+            libxext-dev \
+            libxfixes-dev \
+            libxi-dev \
+            libxinerama-dev \
+            libxrandr-dev
+
+      - name: Install Pangolin
+        run: |
+          git clone --depth 1 --branch v0.9.2 https://github.com/stevenlovegrove/Pangolin.git /tmp/Pangolin
+          cmake -S /tmp/Pangolin -B /tmp/Pangolin/build \
+            -DBUILD_EXAMPLES=OFF \
+            -DBUILD_TOOLS=OFF \
+            -DBUILD_TESTS=OFF \
+            -DBUILD_PANGOLIN_PYTHON=OFF
+          cmake --build /tmp/Pangolin/build --parallel
+          sudo cmake --install /tmp/Pangolin/build
+          sudo ldconfig
+
+      - name: Build wheel
+        run: uv build --wheel
+
+      - name: Bundle native libraries
+        run: |
+          uv tool run auditwheel repair \
+            --plat manylinux_2_35_x86_64 \
+            --wheel-dir wheelhouse \
+            dist/*.whl
+
+      - name: Verify wheel
+        run: |
+          uv venv --clear /tmp/orbslam3-wheel-test
+          uv pip install --python /tmp/orbslam3-wheel-test/bin/python numpy wheelhouse/*.whl
+          /tmp/orbslam3-wheel-test/bin/python -c "import orbslam3; print(orbslam3.__version__)"
+
+      - name: Upload wheel
+        uses: actions/upload-artifact@v4
+        with:
+          name: wheels-${{ matrix.python-version }}
+          path: wheelhouse/*.whl
+          if-no-files-found: error
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download wheels
+        uses: actions/download-artifact@v4
+        with:
+          pattern: wheels-*
+          merge-multiple: true
+          path: dist
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: dist/*.whl
