@@ -19,6 +19,12 @@ string(REPLACE "FIND_PACKAGE(Eigen3 3.1.0 REQUIRED)" "FIND_PACKAGE(Eigen3 REQUIR
   _g2o_contents "${_g2o_contents}")
 file(WRITE "${_g2o_cmake}" "${_g2o_contents}")
 
+set(_dbow2_cmake "${ORB_SLAM3_SOURCE_DIR}/Thirdparty/DBoW2/CMakeLists.txt")
+file(READ "${_dbow2_cmake}" _dbow2_contents)
+string(REPLACE "find_package(OpenCV 4 QUIET)" "find_package(OpenCV REQUIRED)"
+  _dbow2_contents "${_dbow2_contents}")
+file(WRITE "${_dbow2_cmake}" "${_dbow2_contents}")
+
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Pangolin REQUIRED)
