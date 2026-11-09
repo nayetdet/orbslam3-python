@@ -19,13 +19,17 @@ string(REPLACE "FIND_PACKAGE(Eigen3 3.1.0 REQUIRED)" "FIND_PACKAGE(Eigen3 REQUIR
   _g2o_contents "${_g2o_contents}")
 file(WRITE "${_g2o_cmake}" "${_g2o_contents}")
 
-set(_g2o_hyper_graph "${ORB_SLAM3_SOURCE_DIR}/Thirdparty/g2o/g2o/core/hyper_graph.h")
-file(READ "${_g2o_hyper_graph}" _g2o_hyper_graph_contents)
-string(REPLACE "#ifdef _MSC_VER\n#include <unordered_map>\n#else\n#include <tr1/unordered_map>\n#endif"
-  "#include <unordered_map>" _g2o_hyper_graph_contents "${_g2o_hyper_graph_contents}")
-string(REPLACE "std::tr1::unordered_map" "std::unordered_map"
-  _g2o_hyper_graph_contents "${_g2o_hyper_graph_contents}")
-file(WRITE "${_g2o_hyper_graph}" "${_g2o_hyper_graph_contents}")
+file(GLOB_RECURSE _g2o_sources "${ORB_SLAM3_SOURCE_DIR}/Thirdparty/g2o/g2o/*.h"
+  "${ORB_SLAM3_SOURCE_DIR}/Thirdparty/g2o/g2o/*.hpp"
+  "${ORB_SLAM3_SOURCE_DIR}/Thirdparty/g2o/g2o/*.cpp")
+foreach(_source IN LISTS _g2o_sources)
+  file(READ "${_source}" _contents)
+  string(REPLACE "<tr1/unordered_map>" "<unordered_map>" _contents "${_contents}")
+  string(REPLACE "<tr1/unordered_set>" "<unordered_set>" _contents "${_contents}")
+  string(REPLACE "<tr1/memory>" "<memory>" _contents "${_contents}")
+  string(REPLACE "std::tr1::" "std::" _contents "${_contents}")
+  file(WRITE "${_source}" "${_contents}")
+endforeach()
 
 set(_dbow2_cmake "${ORB_SLAM3_SOURCE_DIR}/Thirdparty/DBoW2/CMakeLists.txt")
 file(READ "${_dbow2_cmake}" _dbow2_contents)
