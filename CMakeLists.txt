@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
-project(orbslam3 VERSION 0.1.16 DESCRIPTION "Python bindings for ORB-SLAM3 with dense reconstruction support" LANGUAGES C CXX)
+project(orbslam3 VERSION 0.1.17 DESCRIPTION "Python bindings for ORB-SLAM3 with dense reconstruction support" LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

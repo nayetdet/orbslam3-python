@@ -144,7 +144,7 @@ jobs:
 
       - name: Bundle macOS libraries
         if: matrix.platform.os == 'macos'
-        run: uv tool run --with delocate delocate-wheel --wheel-dir wheelhouse dist/*.whl
+        run: uv tool run --from delocate delocate-wheel --wheel-dir wheelhouse dist/*.whl
 
       - name: Bundle Windows libraries
         if: matrix.platform.os == 'windows'
