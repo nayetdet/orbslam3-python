@@ -47,6 +47,7 @@ jobs:
             libglew-dev \
             libglu1-mesa-dev \
             liboctomap-dev \
+            libopenmpi-dev \
             libopencv-dev \
             libpcl-dev \
             libssl-dev \
