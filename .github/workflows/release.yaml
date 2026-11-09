@@ -48,7 +48,6 @@ jobs:
             libopencv-dev \
             libpcl-dev \
             libssl-dev \
-            patchelf \
             libx11-dev \
             libxcursor-dev \
             libxext-dev \
@@ -74,7 +73,7 @@ jobs:
 
       - name: Bundle native libraries
         run: |
-          uv tool run auditwheel repair \
+          uv tool run --with 'patchelf>=0.14.5' auditwheel repair \
             --plat manylinux_2_35_x86_64 \
             --wheel-dir wheelhouse \
             dist/*.whl
