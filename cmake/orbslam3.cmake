@@ -37,6 +37,11 @@ string(REPLACE "find_package(OpenCV 4 QUIET)" "find_package(OpenCV REQUIRED)"
   _dbow2_contents "${_dbow2_contents}")
 file(WRITE "${_dbow2_cmake}" "${_dbow2_contents}")
 
+set(_dbow2_forb "${ORB_SLAM3_SOURCE_DIR}/Thirdparty/DBoW2/DBoW2/FORB.cpp")
+file(READ "${_dbow2_forb}" _dbow2_forb_contents)
+string(REPLACE "<stdint-gcc.h>" "<stdint.h>" _dbow2_forb_contents "${_dbow2_forb_contents}")
+file(WRITE "${_dbow2_forb}" "${_dbow2_forb_contents}")
+
 find_package(OpenCV REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Pangolin REQUIRED)
@@ -88,6 +93,7 @@ endif()
 add_subdirectory("${ORB_SLAM3_SOURCE_DIR}/Thirdparty/g2o" "${CMAKE_BINARY_DIR}/thirdparty/g2o")
 add_subdirectory("${ORB_SLAM3_SOURCE_DIR}/Thirdparty/DBoW2" "${CMAKE_BINARY_DIR}/thirdparty/DBoW2")
 target_link_libraries(g2o PUBLIC Eigen3::Eigen)
+target_link_libraries(DBoW2 Boost::serialization)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
   if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(aarch64|arm64|ARM64)$")
