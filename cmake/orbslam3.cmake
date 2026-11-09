@@ -42,6 +42,11 @@ file(READ "${_dbow2_forb}" _dbow2_forb_contents)
 string(REPLACE "<stdint-gcc.h>" "<stdint.h>" _dbow2_forb_contents "${_dbow2_forb_contents}")
 file(WRITE "${_dbow2_forb}" "${_dbow2_forb_contents}")
 
+set(_orb_matcher "${ORB_SLAM3_SOURCE_DIR}/src/ORBmatcher.cc")
+file(READ "${_orb_matcher}" _orb_matcher_contents)
+string(REPLACE "<stdint-gcc.h>" "<stdint.h>" _orb_matcher_contents "${_orb_matcher_contents}")
+file(WRITE "${_orb_matcher}" "${_orb_matcher_contents}")
+
 find_package(OpenCV 4.4 REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Pangolin REQUIRED)
@@ -112,6 +117,7 @@ endif()
 
 if(MSVC)
   target_compile_definitions(g2o PRIVATE _WINDOWS)
+  set_target_properties(g2o DBoW2 PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
 set(ORB_SLAM3_SOURCES

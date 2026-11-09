@@ -74,7 +74,11 @@ jobs:
         if: matrix.platform.os == 'macos'
         run: |
           brew install boost eigen glew libepoxy openssl
-          git clone --depth 1 --branch 4.10.0 https://github.com/opencv/opencv.git "$RUNNER_TEMP/opencv-src"
+          curl --fail --location --retry 5 --retry-all-errors --retry-delay 10 \
+            https://github.com/opencv/opencv/archive/refs/tags/4.10.0.tar.gz \
+            -o "$RUNNER_TEMP/opencv.tar.gz"
+          mkdir "$RUNNER_TEMP/opencv-src"
+          tar -xzf "$RUNNER_TEMP/opencv.tar.gz" -C "$RUNNER_TEMP/opencv-src" --strip-components=1
           cmake -S "$RUNNER_TEMP/opencv-src" -B "$RUNNER_TEMP/opencv-build" \
             -DCMAKE_BUILD_TYPE=Release \
             -DCMAKE_INSTALL_PREFIX="$RUNNER_TEMP/opencv" \
@@ -120,6 +124,8 @@ jobs:
       - name: Build Windows wheel
         if: matrix.platform.os == 'windows'
         shell: pwsh
+        env:
+          CMAKE_GENERATOR: Ninja
         run: >-
           uv build --wheel
           --config-setting="cmake.define.CMAKE_TOOLCHAIN_FILE=$env:VCPKG_INSTALLATION_ROOT/scripts/buildsystems/vcpkg.cmake"
