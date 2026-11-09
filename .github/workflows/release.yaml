@@ -63,6 +63,7 @@ jobs:
             -DBUILD_TOOLS=OFF \
             -DBUILD_TESTS=OFF \
             -DBUILD_PANGOLIN_PYTHON=OFF \
+            -DBUILD_PANGOLIN_FFMPEG=OFF \
             -DCMAKE_INSTALL_PREFIX="$RUNNER_TEMP/pangolin"
           cmake --build "$RUNNER_TEMP/Pangolin/build" --parallel
           cmake --install "$RUNNER_TEMP/Pangolin/build"
@@ -78,6 +79,7 @@ jobs:
             -DBUILD_TOOLS=OFF \
             -DBUILD_TESTS=OFF \
             -DBUILD_PANGOLIN_PYTHON=OFF \
+            -DBUILD_PANGOLIN_FFMPEG=OFF \
             -DCMAKE_PREFIX_PATH="$(brew --prefix)" \
             -DCMAKE_INSTALL_PREFIX="$RUNNER_TEMP/pangolin"
           cmake --build "$RUNNER_TEMP/Pangolin/build" --parallel
@@ -110,6 +112,8 @@ jobs:
 
       - name: Bundle Linux libraries
         if: matrix.platform.os == 'linux'
+        env:
+          LD_LIBRARY_PATH: ${{ runner.temp }}/pangolin/lib
         run: |
           uv tool run --with 'patchelf>=0.14.5' auditwheel repair \
             --plat "${{ matrix.platform.wheel-platform }}" \
