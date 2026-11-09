@@ -116,7 +116,28 @@ if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
 endif()
 
 if(MSVC)
+  set(_g2o_compat "${CMAKE_BINARY_DIR}/g2o_windows_compat.h")
+  file(WRITE "${_g2o_compat}" [=[
+#pragma once
+#include <cstdarg>
+#include <cstdio>
+#include <cstdlib>
+inline int vasprintf(char** output, const char* format, va_list args) {
+  *output = nullptr;
+  va_list copy;
+  va_copy(copy, args);
+  int length = _vscprintf(format, copy);
+  va_end(copy);
+  if (length < 0) return -1;
+  *output = static_cast<char*>(malloc(static_cast<size_t>(length) + 1));
+  if (!*output) return -1;
+  int written = vsnprintf(*output, static_cast<size_t>(length) + 1, format, args);
+  if (written < 0) { free(*output); *output = nullptr; return -1; }
+  return written;
+}
+]=])
   target_compile_definitions(g2o PRIVATE _WINDOWS)
+  target_compile_options(g2o PRIVATE "/FI${_g2o_compat}")
   set_target_properties(g2o DBoW2 PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 

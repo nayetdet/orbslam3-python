@@ -144,6 +144,8 @@ jobs:
 
       - name: Bundle macOS libraries
         if: matrix.platform.os == 'macos'
+        env:
+          DYLD_LIBRARY_PATH: ${{ runner.temp }}/opencv/lib:${{ runner.temp }}/pangolin/lib
         run: uv tool run --from delocate delocate-wheel --wheel-dir wheelhouse dist/*.whl
 
       - name: Bundle Windows libraries
