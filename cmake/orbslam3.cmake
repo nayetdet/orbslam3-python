@@ -23,6 +23,9 @@ find_package(MPI REQUIRED COMPONENTS C)
 add_subdirectory("${ORB_SLAM3_SOURCE_DIR}/Thirdparty/g2o" "${CMAKE_BINARY_DIR}/thirdparty/g2o")
 add_subdirectory("${ORB_SLAM3_SOURCE_DIR}/Thirdparty/DBoW2" "${CMAKE_BINARY_DIR}/thirdparty/DBoW2")
 
+target_compile_options(DBoW2 PRIVATE -march=x86-64 -mtune=generic)
+target_compile_options(g2o PRIVATE -march=x86-64 -mtune=generic)
+
 set(ORB_SLAM3_SOURCES
   src/System.cc src/Tracking.cc src/LocalMapping.cc src/LoopClosing.cc
   src/ORBextractor.cc src/ORBmatcher.cc src/FrameDrawer.cc src/Converter.cc
