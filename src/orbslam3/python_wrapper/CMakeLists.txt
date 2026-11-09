@@ -1,0 +1,5 @@
+pybind11_add_module(orbslam3_pybind MODULE orbslam3_pybind.cpp)
+target_link_libraries(orbslam3_pybind PRIVATE ORB_SLAM3)
+target_compile_features(orbslam3_pybind PRIVATE cxx_std_17)
+set_target_properties(orbslam3_pybind PROPERTIES INSTALL_RPATH "$ORIGIN")
+install(TARGETS orbslam3_pybind DBoW2 g2o DESTINATION .)

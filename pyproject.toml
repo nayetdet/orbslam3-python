@@ -1,0 +1,27 @@
+[project]
+name = "orbslam3"
+version = "0.1.0"
+description = "Python bindings for ORB-SLAM3 with dense reconstruction support"
+requires-python = ">=3.9"
+readme = "README.md"
+dependencies = [
+    "numpy>=1.22",
+]
+
+[build-system]
+requires = ["scikit-build-core>=0.10", "pybind11>=2.11"]
+build-backend = "scikit_build_core.build"
+
+[tool.scikit-build]
+build-dir = "build/{wheel_tag}"
+cmake.version = ">=3.25"
+wheel.install-dir = "orbslam3/python_wrapper"
+wheel.packages = ["src/orbslam3"]
+
+[tool.ruff]
+target-version = "py39"
+line-length = 100
+src = ["src"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "SIM"]
