@@ -83,6 +83,7 @@ endif()
 
 add_subdirectory("${ORB_SLAM3_SOURCE_DIR}/Thirdparty/g2o" "${CMAKE_BINARY_DIR}/thirdparty/g2o")
 add_subdirectory("${ORB_SLAM3_SOURCE_DIR}/Thirdparty/DBoW2" "${CMAKE_BINARY_DIR}/thirdparty/DBoW2")
+target_link_libraries(g2o PUBLIC Eigen3::Eigen)
 
 if(CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
   if(CMAKE_SYSTEM_PROCESSOR MATCHES "^(aarch64|arm64|ARM64)$")
