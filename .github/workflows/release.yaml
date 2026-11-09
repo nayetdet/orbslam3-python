@@ -3,6 +3,7 @@ name: Release
 on:
   push:
     tags: ["v*"]
+  workflow_dispatch:
 
 permissions:
   contents: write
@@ -72,7 +73,17 @@ jobs:
       - name: Install macOS dependencies and Pangolin
         if: matrix.platform.os == 'macos'
         run: |
-          brew install boost eigen glew libepoxy opencv openssl
+          brew install boost eigen glew libepoxy openssl
+          git clone --depth 1 --branch 4.10.0 https://github.com/opencv/opencv.git "$RUNNER_TEMP/opencv-src"
+          cmake -S "$RUNNER_TEMP/opencv-src" -B "$RUNNER_TEMP/opencv-build" \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_INSTALL_PREFIX="$RUNNER_TEMP/opencv" \
+            -DBUILD_LIST=core,imgproc,imgcodecs,features2d,calib3d,highgui,video,videoio \
+            -DBUILD_TESTS=OFF -DBUILD_PERF_TESTS=OFF -DBUILD_EXAMPLES=OFF \
+            -DBUILD_opencv_apps=OFF -DBUILD_opencv_python3=OFF \
+            -DBUILD_JAVA=OFF -DBUILD_SHARED_LIBS=ON
+          cmake --build "$RUNNER_TEMP/opencv-build" --parallel
+          cmake --install "$RUNNER_TEMP/opencv-build"
           git clone --depth 1 --branch v0.9.2 https://github.com/stevenlovegrove/Pangolin.git "$RUNNER_TEMP/Pangolin"
           cmake -S "$RUNNER_TEMP/Pangolin" -B "$RUNNER_TEMP/Pangolin/build" \
             -DBUILD_EXAMPLES=OFF \
@@ -84,7 +95,8 @@ jobs:
             -DCMAKE_INSTALL_PREFIX="$RUNNER_TEMP/pangolin"
           cmake --build "$RUNNER_TEMP/Pangolin/build" --parallel
           cmake --install "$RUNNER_TEMP/Pangolin/build"
-          echo "CMAKE_PREFIX_PATH=$RUNNER_TEMP/pangolin:$(brew --prefix)" >> "$GITHUB_ENV"
+          echo "CMAKE_PREFIX_PATH=$RUNNER_TEMP/opencv:$RUNNER_TEMP/pangolin:$(brew --prefix)" >> "$GITHUB_ENV"
+          echo "OpenCV_DIR=$RUNNER_TEMP/opencv/lib/cmake/opencv4" >> "$GITHUB_ENV"
 
       - name: Install Windows dependencies
         if: matrix.platform.os == 'windows'
@@ -160,6 +172,7 @@ jobs:
 
   release:
     needs: build
+    if: github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')
     runs-on: ubuntu-latest
     steps:
       - uses: actions/download-artifact@v4

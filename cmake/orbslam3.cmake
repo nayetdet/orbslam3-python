@@ -33,7 +33,7 @@ endforeach()
 
 set(_dbow2_cmake "${ORB_SLAM3_SOURCE_DIR}/Thirdparty/DBoW2/CMakeLists.txt")
 file(READ "${_dbow2_cmake}" _dbow2_contents)
-string(REPLACE "find_package(OpenCV 4 QUIET)" "find_package(OpenCV REQUIRED)"
+string(REPLACE "find_package(OpenCV 4 QUIET)" "find_package(OpenCV 4.4 REQUIRED)"
   _dbow2_contents "${_dbow2_contents}")
 file(WRITE "${_dbow2_cmake}" "${_dbow2_contents}")
 
@@ -42,7 +42,7 @@ file(READ "${_dbow2_forb}" _dbow2_forb_contents)
 string(REPLACE "<stdint-gcc.h>" "<stdint.h>" _dbow2_forb_contents "${_dbow2_forb_contents}")
 file(WRITE "${_dbow2_forb}" "${_dbow2_forb_contents}")
 
-find_package(OpenCV REQUIRED)
+find_package(OpenCV 4.4 REQUIRED)
 find_package(Eigen3 REQUIRED)
 find_package(Pangolin REQUIRED)
 find_package(Boost REQUIRED COMPONENTS serialization)
