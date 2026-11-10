@@ -137,7 +137,7 @@ inline int vasprintf(char** output, const char* format, va_list args) {
 }
 ]=])
   target_compile_definitions(g2o PRIVATE _WINDOWS)
-  target_compile_options(g2o PRIVATE "/FI${_g2o_compat}")
+  target_compile_options(g2o PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:/FI${_g2o_compat}>")
   set_target_properties(g2o DBoW2 PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
