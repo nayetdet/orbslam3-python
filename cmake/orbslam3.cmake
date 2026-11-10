@@ -54,6 +54,15 @@ find_package(Boost REQUIRED COMPONENTS serialization)
 find_package(OpenSSL REQUIRED)
 
 if(MSVC)
+  set(_map_point "${ORB_SLAM3_SOURCE_DIR}/src/MapPoint.cc")
+  file(READ "${_map_point}" _map_point_contents)
+  string(REPLACE "float Distances[N][N];" "vector<vector<float>> Distances(N, vector<float>(N));"
+    _map_point_contents "${_map_point_contents}")
+  string(REPLACE "vector<int> vDists(Distances[i],Distances[i]+N);"
+    "vector<int> vDists(Distances[i].begin(), Distances[i].end());"
+    _map_point_contents "${_map_point_contents}")
+  file(WRITE "${_map_point}" "${_map_point_contents}")
+
   set(_windows_compat "${ORB_SLAM3_SOURCE_DIR}/include/WindowsCompat.h")
   file(WRITE "${_windows_compat}" [=[
 #pragma once
