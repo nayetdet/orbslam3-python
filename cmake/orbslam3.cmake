@@ -95,17 +95,29 @@ inline int usleep(unsigned int microseconds) { Sleep((microseconds + 999) / 1000
     _g2o_contents "${_g2o_contents}")
   string(REPLACE " -Wall -W" " /W3"
     _g2o_contents "${_g2o_contents}")
+  string(REPLACE "SET (G2O_LIB_TYPE SHARED)" "SET (G2O_LIB_TYPE STATIC)"
+    _g2o_contents "${_g2o_contents}")
   file(WRITE "${_g2o_cmake}" "${_g2o_contents}")
 
   set(_dbow2_cmake "${ORB_SLAM3_SOURCE_DIR}/Thirdparty/DBoW2/CMakeLists.txt")
   file(READ "${_dbow2_cmake}" _dbow2_contents)
   string(REPLACE "-Wall  -O3 -march=native" "/W3 /O2"
     _dbow2_contents "${_dbow2_contents}")
+  string(REPLACE "add_library(DBoW2 SHARED" "add_library(DBoW2 STATIC"
+    _dbow2_contents "${_dbow2_contents}")
   file(WRITE "${_dbow2_cmake}" "${_dbow2_contents}")
 endif()
 
 add_subdirectory("${ORB_SLAM3_SOURCE_DIR}/Thirdparty/g2o" "${CMAKE_BINARY_DIR}/thirdparty/g2o")
 add_subdirectory("${ORB_SLAM3_SOURCE_DIR}/Thirdparty/DBoW2" "${CMAKE_BINARY_DIR}/thirdparty/DBoW2")
+if(MSVC)
+  foreach(_target g2o DBoW2)
+    get_target_property(_target_type ${_target} TYPE)
+    if(NOT _target_type STREQUAL "STATIC_LIBRARY")
+      message(FATAL_ERROR "${_target} must be built as a static library with MSVC")
+    endif()
+  endforeach()
+endif()
 target_link_libraries(g2o PUBLIC Eigen3::Eigen)
 target_link_libraries(DBoW2 Boost::serialization)
 
@@ -147,7 +159,6 @@ inline int vasprintf(char** output, const char* format, va_list args) {
 ]=])
   target_compile_definitions(g2o PRIVATE _WINDOWS)
   target_compile_options(g2o PRIVATE "$<$<COMPILE_LANGUAGE:CXX>:/FI${_g2o_compat}>")
-  set_target_properties(g2o DBoW2 PROPERTIES WINDOWS_EXPORT_ALL_SYMBOLS ON)
 endif()
 
 set(ORB_SLAM3_SOURCES
